@@ -96,7 +96,7 @@ FT_STATUS FT_GetNumChannels(FT_LegacyProtocol Protocol, uint32 *numChans)
 	/*initalize *numChansto 0 */
 	*numChans = MID_NO_CHANNEL_FOUND;
 	/*Get the number of devices connected to the system(FT_CreateDeviceInfoList)*/
-	status = varFunctionPtrLst.p_FT_GetNumChannel(&tempNumChannels);
+	status = FT_CreateDeviceInfoList(&tempNumChannels);
 //	printf("\n status=0x%x     tempNumChannels=%d\n",status,tempNumChannels);
 	/*Check if the status is Ok */
 	if(status == FT_OK)
@@ -114,7 +114,7 @@ FT_STATUS FT_GetNumChannels(FT_LegacyProtocol Protocol, uint32 *numChans)
 				return FT_INSUFFICIENT_RESOURCES;
 			}
 			/*get the devices information(FT_GetDeviceInfoList)*/
-			status = varFunctionPtrLst.p_FT_GetDeviceInfoList(pDeviceList,\
+			status = FT_GetDeviceInfoList(pDeviceList,\
 				&tempNumChannels);
 			while(devLoop < tempNumChannels)
 			{
@@ -179,7 +179,7 @@ FT_STATUS FT_GetChannelInfo(FT_LegacyProtocol Protocol, uint32 index,
 	channelCount = MID_NO_CHANNEL_FOUND;
 
 	/*Get the number of devices connected to the system(FT_CreateDeviceInfoList)*/
-	status = varFunctionPtrLst.p_FT_GetNumChannel(&tempNumChannels);
+	status = FT_CreateDeviceInfoList(&tempNumChannels);
 	CHECK_STATUS(status);
 
 	/*Check if No of channel is greater than 0*/
@@ -195,7 +195,7 @@ FT_STATUS FT_GetChannelInfo(FT_LegacyProtocol Protocol, uint32 index,
 		}
 
 		/*get the devices information(FT_GetDeviceInfoList)*/
-		status = varFunctionPtrLst.p_FT_GetDeviceInfoList(pDeviceList,\
+		status = FT_GetDeviceInfoList(pDeviceList,\
 			&tempNumChannels);
 		CHECK_STATUS(status);
 
@@ -259,7 +259,7 @@ FT_STATUS FT_OpenChannel(FT_LegacyProtocol Protocol, uint32 index,
 	channelCount = MID_NO_CHANNEL_FOUND;
 
 	/*Get the number of devices connected to the system(FT_CreateDeviceInfoList)*/
-	status = varFunctionPtrLst.p_FT_GetNumChannel(&tempNumChannels);
+	status = FT_CreateDeviceInfoList(&tempNumChannels);
 	CHECK_STATUS(status);
 
 	/*Check if No of channel is greater than 0*/
@@ -274,7 +274,7 @@ FT_STATUS FT_OpenChannel(FT_LegacyProtocol Protocol, uint32 index,
 			return FT_INSUFFICIENT_RESOURCES;
 		}
 		/*get the devices information(FT_GetDeviceInfoList)*/
-		status = varFunctionPtrLst.p_FT_GetDeviceInfoList(pDeviceList,\
+		status = FT_GetDeviceInfoList(pDeviceList,\
 			&tempNumChannels);
 		CHECK_STATUS(status);
 
@@ -292,7 +292,7 @@ FT_STATUS FT_OpenChannel(FT_LegacyProtocol Protocol, uint32 index,
 			if(channelCount == index)
 			{
 				/*call FT_Open*/
-				status = varFunctionPtrLst.p_FT_Open(devLoop,handle);
+				status = FT_Open(devLoop,handle);
 				break;
 			}
 			devLoop++;
@@ -481,7 +481,7 @@ FT_STATUS FT_CloseChannel(FT_LegacyProtocol Protocol, FT_HANDLE handle)
 {
 	FT_STATUS status;
 	FN_ENTER;
-	status = varFunctionPtrLst.p_FT_Close(handle);
+	status = FT_Close(handle);
 	FN_EXIT;
 	return status;
 }
@@ -509,7 +509,7 @@ FT_STATUS FT_Channel_Read(FT_LegacyProtocol Protocol, FT_HANDLE handle,
 {
 	FT_STATUS status;
 	FN_ENTER;
-	status = varFunctionPtrLst.p_FT_Read(handle, buffer, noOfBytes, \
+	status = FT_Read(handle, buffer, noOfBytes, \
 		(DWORD*)noOfBytesTransferred);
 #if 0
 /* Disabled after code review */
@@ -529,7 +529,7 @@ FT_STATUS FT_Channel_Read(FT_LegacyProtocol Protocol, FT_HANDLE handle,
 			{
 				numOfBytesToRead = (noOfBytes - totalNumOfBytesRead);
 			}
-			status = varFunctionPtrLst.p_FT_Read(handle,\
+			status = FT_Read(handle,\
 				&buffer[totalNumOfBytesRead],numOfBytesToRead,&numOfBytesRead);
 			totalNumOfBytesRead = totalNumOfBytesRead + numOfBytesRead;
 		}while ((totalNumOfBytesRead < noOfBytes) && (status == FT_OK));
@@ -538,7 +538,7 @@ FT_STATUS FT_Channel_Read(FT_LegacyProtocol Protocol, FT_HANDLE handle,
 	}
 	else
 	{
-		status = varFunctionPtrLst.p_FT_Read(handle, buffer, noOfBytes, \
+		status = FT_Read(handle, buffer, noOfBytes, \
 			noOfBytesTransferred);
 	}
 #endif
@@ -594,7 +594,7 @@ FT_STATUS FT_Channel_Write(FT_LegacyProtocol Protocol, FT_HANDLE handle,
 	}
 #endif
 
-	status = varFunctionPtrLst.p_FT_Write(handle, buffer, noOfBytes, \
+	status = FT_Write(handle, buffer, noOfBytes, \
 		(DWORD*)noOfBytesTransferred);
 #if 0
 /* Disabled after code review */
@@ -614,7 +614,7 @@ FT_STATUS FT_Channel_Write(FT_LegacyProtocol Protocol, FT_HANDLE handle,
 			{
 				numOfBytesToSend = (noOfBytes - totalNumOfBytesSent);
 			}
-			status = varFunctionPtrLst.p_FT_Write(handle,\
+			status = FT_Write(handle,\
 				&buffer[totalNumOfBytesSent],numOfBytesToSend,&numOfBytesSent);
 			totalNumOfBytesSent = totalNumOfBytesSent + numOfBytesSent;
 		}while ((totalNumOfBytesSent < noOfBytes) && (status == FT_OK));
@@ -623,7 +623,7 @@ FT_STATUS FT_Channel_Write(FT_LegacyProtocol Protocol, FT_HANDLE handle,
 	}
 	else
 	{
-		status = varFunctionPtrLst.p_FT_Write(handle, buffer, noOfBytes, \
+		status = FT_Write(handle, buffer, noOfBytes, \
 			noOfBytesTransferred);
 	}
 #endif
@@ -699,7 +699,7 @@ FT_STATUS Mid_ResetDevice(FT_HANDLE handle)
 {
 	FT_STATUS status;
 	FN_ENTER;
-	status = varFunctionPtrLst.p_FT_ResetDevice(handle);
+	status = FT_ResetDevice(handle);
 	FN_EXIT;
 	return status;
 
@@ -719,7 +719,7 @@ FT_STATUS Mid_PurgeDevice (FT_HANDLE handle)
 {
 	FT_STATUS status;
 	FN_ENTER;
-	status = varFunctionPtrLst.p_FT_Purge(handle, FT_PURGE_RX | FT_PURGE_TX);
+	status = FT_Purge(handle, FT_PURGE_RX | FT_PURGE_TX);
 	FN_EXIT;
 	return status;
 }
@@ -743,7 +743,7 @@ FT_STATUS Mid_SetUSBParameters(FT_HANDLE handle,DWORD inputBufSize,DWORD \
 {
 	FT_STATUS status;
 	FN_ENTER;
-	status = varFunctionPtrLst.p_FT_SetUSBParameters(handle,inputBufSize,\
+	status = FT_SetUSBParameters(handle,inputBufSize,\
 		outputBufSize);
 	FN_EXIT;
 	return status;
@@ -768,7 +768,7 @@ FT_STATUS Mid_SetDeviceSpecialChar(FT_HANDLE handle,UCHAR eventCh,
 {
 	FT_STATUS status;
 	FN_ENTER;
-	status = varFunctionPtrLst.p_FT_SetChars(handle,eventCh,eventStatus,\
+	status = FT_SetChars(handle,eventCh,eventStatus,\
 		errorCh,errorStatus);
 	FN_EXIT;
 	return status;
@@ -793,7 +793,7 @@ FT_STATUS Mid_SetDeviceTimeOut(FT_HANDLE handle,DWORD rdTimeOut,\
 {
 	FT_STATUS status;
 	FN_ENTER;
-	status = varFunctionPtrLst.p_FT_SetTimeouts(handle,rdTimeOut,wrTimeOut);
+	status = FT_SetTimeouts(handle,rdTimeOut,wrTimeOut);
 	FN_EXIT;
 	return status;
 }
@@ -814,7 +814,7 @@ FT_STATUS Mid_SetLatencyTimer (FT_HANDLE handle, UCHAR milliSecond)
 {
 	FT_STATUS status;
 	FN_ENTER;
-	status = varFunctionPtrLst.p_FT_SetLatencyTimer(handle,milliSecond);
+	status = FT_SetLatencyTimer(handle,milliSecond);
 	FN_EXIT;
 	return status;
  }
@@ -833,7 +833,7 @@ FT_STATUS Mid_ResetMPSSE(FT_HANDLE handle)
 {
 	FT_STATUS status;
 	FN_ENTER;
-	status = varFunctionPtrLst.p_FT_SetBitmode(handle, INTERFACE_MASK_IN,\
+	status = FT_SetBitMode(handle, INTERFACE_MASK_IN,\
 		RESET_INTERFACE);
 	FN_EXIT;
 	return status;
@@ -853,7 +853,7 @@ FT_STATUS Mid_EnableMPSSEIn(FT_HANDLE handle)
 {
 	FT_STATUS status;
 	FN_ENTER;
-	status = varFunctionPtrLst.p_FT_SetBitmode(handle,INTERFACE_MASK_IN,\
+	status = FT_SetBitMode(handle,INTERFACE_MASK_IN,\
 		ENABLE_MPSSE);
 	FN_EXIT;
 	return status;
@@ -943,7 +943,7 @@ FT_STATUS Mid_SendReceiveCmdFromMPSSE(FT_HANDLE handle, UCHAR echoCmdFlag,UCHAR 
 	/* check whether command has to be sent only once*/
 	if (echoCmdFlag == MID_ECHO_COMMAND_ONCE)
 	{
-		status = varFunctionPtrLst.p_FT_Write(handle,&ecoCmd,1,&bytesWritten);
+		status = FT_Write(handle,&ecoCmd,1,&bytesWritten);
 		CHECK_STATUS(status);
 	}
 
@@ -954,18 +954,18 @@ FT_STATUS Mid_SendReceiveCmdFromMPSSE(FT_HANDLE handle, UCHAR echoCmdFlag,UCHAR 
 		/*check whether command has to be sent every time in the loop*/
 		if(echoCmdFlag == MID_ECHO_COMMAND_CONTINUOUSLY)
 		{
-		  status = varFunctionPtrLst.p_FT_Write(handle,&ecoCmd,1,&bytesWritten);
+		  status = FT_Write(handle,&ecoCmd,1,&bytesWritten);
 		 CHECK_STATUS(status);
 		}
 		/*read the no of bytes available in Receive buffer*/
-		status = varFunctionPtrLst.p_FT_GetQueueStatus(handle,&bytesInInputBuf);
+		status = FT_GetQueueStatus(handle,&bytesInInputBuf);
 		CHECK_STATUS(status);
 		INFRA_SLEEP(1);
 		DBG(MSG_DEBUG,"bytesInInputBuf size =  %d\n",bytesInInputBuf);
 		if(bytesInInputBuf >0)
 		{
 			MID_CHK_IN_BUF_OK(bytesInInputBuf);
-			status = varFunctionPtrLst.p_FT_Read(handle,readBuffer,bytesInInputBuf,&numOfBytesRead);
+			status = FT_Read(handle,readBuffer,bytesInInputBuf,&numOfBytesRead);
 			CHECK_STATUS(status);
 			if(numOfBytesRead >0)
 			{
@@ -1043,7 +1043,7 @@ FT_STATUS Mid_SetGPIOLow(FT_HANDLE handle, uint8 value, uint8 direction)
 	*/
 	FN_EXIT;
 
-	return varFunctionPtrLst.p_FT_Write(handle,inputBuffer,bufIdx,&bytesWritten);
+	return FT_Write(handle,inputBuffer,bufIdx,&bytesWritten);
 
 }
 
@@ -1056,7 +1056,7 @@ FT_STATUS Mid_GetFtDeviceType(FT_HANDLE handle, FT_DEVICE *ftDevice)
 	VOID *Dummy=NULL;
 
 	FN_ENTER;
-	status = varFunctionPtrLst.p_FT_GetDeviceInfo(handle, ftDevice, &deviceID, \
+	status = FT_GetDeviceInfo(handle, ftDevice, &deviceID, \
 		(PCHAR)pSerialNumber, (PCHAR)pDescription, Dummy);
 
 #ifdef INFRA_DEBUG_ENABLE
@@ -1138,7 +1138,7 @@ FT_STATUS Mid_SetClock(FT_HANDLE handle, FT_DEVICE ftDevice, uint32 clock)
 				DBG(MSG_DEBUG,"handle=0x%x value=0x%x ENABLE_CLOCK_DIVIDE\n",\
 					(unsigned)handle,(unsigned)value);
 				value = ENABLE_CLOCK_DIVIDE;
-				status = varFunctionPtrLst.p_FT_Write(handle,&value,1,\
+				status = FT_Write(handle,&value,1,\
 					&bytesWritten);
 				CHECK_STATUS(status);
 				value = (MID_6MHZ/clock) - 1;
@@ -1148,7 +1148,7 @@ FT_STATUS Mid_SetClock(FT_HANDLE handle, FT_DEVICE ftDevice, uint32 clock)
 				DBG(MSG_DEBUG,"handle=0x%x value=0x%x DISABLE_CLOCK_DIVIDE\n",\
 					(unsigned)handle,(unsigned)value);
 				value = DISABLE_CLOCK_DIVIDE;
-				status = varFunctionPtrLst.p_FT_Write(handle,&value,1,\
+				status = FT_Write(handle,&value,1,\
 					&bytesWritten);
 				CHECK_STATUS(status);
 				value = (MID_30MHZ/clock) - 1;
@@ -1164,7 +1164,7 @@ FT_STATUS Mid_SetClock(FT_HANDLE handle, FT_DEVICE ftDevice, uint32 clock)
 	inputBuffer[bufIdx++] = valueL;
 	inputBuffer[bufIdx++] = valueH;
 	FN_EXIT;
-	return varFunctionPtrLst.p_FT_Write(handle,inputBuffer,bufIdx,&bytesWritten);
+	return FT_Write(handle,inputBuffer,bufIdx,&bytesWritten);
 }
 
 /*!
@@ -1195,7 +1195,7 @@ FT_STATUS Mid_SetDeviceLoopbackState(FT_HANDLE handle,uint8 loopBackFlag)
 		inputBuffer[bufIdx++] = MID_TURN_ON_LOOPBACK_CMD;
 	}
 	FN_EXIT;
-	return varFunctionPtrLst.p_FT_Write(handle,inputBuffer,bufIdx,&bytesWritten);
+	return FT_Write(handle,inputBuffer,bufIdx,&bytesWritten);
 }
 
 /*!
@@ -1222,7 +1222,7 @@ FT_STATUS Mid_EmptyDeviceInputBuff(FT_HANDLE handle)
 	{
 		return FT_INSUFFICIENT_RESOURCES;
 	}
-	status = varFunctionPtrLst.p_FT_GetQueueStatus(handle,&bytesInInputBuf);
+	status = FT_GetQueueStatus(handle,&bytesInInputBuf);
 	CHECK_STATUS(status);
 	if(bytesInInputBuf > 0)
 	{
@@ -1230,14 +1230,14 @@ FT_STATUS Mid_EmptyDeviceInputBuff(FT_HANDLE handle)
 		{
 			if(bytesInInputBuf >MID_MAX_IN_BUF_SIZE)
 			{
-				status = varFunctionPtrLst.p_FT_Read(handle,readBuffer,\
+				status = FT_Read(handle,readBuffer,\
 					MID_MAX_IN_BUF_SIZE,&numOfBytesRead);
 				CHECK_STATUS(status);
 				bytesInInputBuf = bytesInInputBuf - numOfBytesRead;
 			}
 			else
 			{
-				status = varFunctionPtrLst.p_FT_Read(handle,readBuffer,\
+				status = FT_Read(handle,readBuffer,\
 					bytesInInputBuf,&numOfBytesRead);
 				CHECK_STATUS(status);
 				bytesInInputBuf = bytesInInputBuf - numOfBytesRead;
@@ -1284,7 +1284,7 @@ FTDI_API FT_STATUS FT_WriteGPIO(FT_HANDLE handle, uint8 dir, uint8 value)
 	buffer[bufIdx++] = value;
 	buffer[bufIdx++] = dir;
 #endif
-	status = varFunctionPtrLst.p_FT_Write(handle,buffer,bufIdx,&bytesWritten);
+	status = FT_Write(handle,buffer,bufIdx,&bytesWritten);
 	FN_EXIT;
 	return status;
 }
@@ -1318,14 +1318,14 @@ FTDI_API FT_STATUS FT_ReadGPIO(FT_HANDLE handle,uint8 *value)
 	buffer[bytesToTransfer++] = MPSSE_CMD_GET_DATA_BITS_LOWBYTE;
 	buffer[bytesToTransfer++] = MPSSE_CMD_SEND_IMMEDIATE;
 #endif
-	status = varFunctionPtrLst.p_FT_Write(handle,buffer,bytesToTransfer,\
+	status = FT_Write(handle,buffer,bytesToTransfer,\
 		&bytesTransfered);
 	CHECK_STATUS(status);
 	DBG(MSG_DEBUG,"bytesToTransfer=0x%x bytesTransfered=0x%x\n",\
 		(unsigned)bytesToTransfer,(unsigned)bytesTransfered);
 	bytesToTransfer = 1;
 	bytesTransfered = 0;
-	status = varFunctionPtrLst.p_FT_Read(handle,readBuffer,bytesToTransfer,\
+	status = FT_Read(handle,readBuffer,bytesToTransfer,\
 		&bytesTransfered);
 	CHECK_STATUS(status);
 	DBG(MSG_DEBUG,"bytesToTransfer=0x%x bytesTransfered=0x%x\n",\
@@ -1342,7 +1342,7 @@ FT_STATUS Mid_GetQueueStatus(FT_HANDLE handle, LPDWORD lpdwAmountInRxQueue)
 {
 	FT_STATUS status;
 	FN_ENTER;
-	status = varFunctionPtrLst.p_FT_GetQueueStatus(handle, lpdwAmountInRxQueue);
+	status = FT_GetQueueStatus(handle, lpdwAmountInRxQueue);
 	FN_EXIT;
 	return status;
 }

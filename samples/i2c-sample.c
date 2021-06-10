@@ -1,10 +1,10 @@
 /*!
- * \file sample-static.c
+ * \file i2c-static.c
  *
  * \author FTDI
  * \date 20110512
  *
- * Copyright © 2000-2014 Future Technology Devices International Limited
+ * Copyright (C) 2000-2014 Future Technology Devices International Limited
  *
  *
  * THIS SOFTWARE IS PROVIDED BY FUTURE TECHNOLOGY DEVICES INTERNATIONAL LIMITED ``AS IS'' AND ANY EXPRESS
@@ -98,41 +98,6 @@ static LARGE_INTEGER llFrequency = {0};
 /******************************************************************************/
 /*						Public function definitions						  		   */
 /******************************************************************************/
-/*!
- * \brief Initialize libMPSSE library
- *
- * This function initialize the static library or dynamic library
- *
- * \param[in] None
- * \return Returns true if successful
- * \note
- * \warning
- */
-static uint8 initialize_library()
-{
-#ifdef _MSC_VER
-	Init_libMPSSE();
-#endif
-
-	return 1;
-}
-
-/*!
- * \brief Cleans up libMPSSE library
- *
- * This function cleans up the static library or dynamic library
- *
- * \param[in] None
- * \return None
- * \note
- * \warning
- */
-static void cleanup_library()
-{
-#ifdef _MSC_VER
-	Cleanup_libMPSSE();
-#endif // _MSC_VER
-}
 
 /*!
  * \brief Initialize timer
@@ -570,14 +535,6 @@ int main()
 	uint32 channels = 0;
 	uint32 i = 0;
 
-
-	// Initialize libMPSSE library
-	if (!initialize_library())
-	{
-		printf("initialize_library failed!\n");
-		return 0;
-	}
-
 	// Initialize channel configurations
 	memset(&channelConf, 0, sizeof(channelConf));
 	channelConf.ClockRate = I2C_CLOCK_FAST_MODE;
@@ -606,13 +563,13 @@ int main()
 			printf("		LocId=0x%x\n",devList.LocId);
 			printf("		SerialNumber=%s\n",devList.SerialNumber);
 			printf("		Description=%s\n",devList.Description);
-			printf("		ftHandle=0x%x\n",(unsigned int)devList.ftHandle);/* 0 if not open*/
+			printf("		ftHandle=0x%lx\n",(unsigned long)devList.ftHandle);/* 0 if not open*/
 		}
 
 		// Open the first available channel
 		status = I2C_OpenChannel(CHANNEL_TO_OPEN,&ftHandle);
 		APP_CHECK_STATUS(status);
-		printf("\nhandle=0x%x status=%d\n",(unsigned int)ftHandle,(unsigned int)status);
+		printf("\nhandle=0x%lx status=%d\n",(unsigned long)ftHandle,(unsigned int)status);
 		
 		// Initialize the channel
 		status = I2C_InitChannel(ftHandle,&channelConf);
@@ -629,8 +586,6 @@ int main()
 
 		status = I2C_CloseChannel(ftHandle);
 	}
-
-	cleanup_library();
 
 #ifdef _WIN32
 	system("pause");

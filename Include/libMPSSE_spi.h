@@ -4,7 +4,7 @@
  * \author FTDI
  * \date 20110527
  *
- * Copyright © 2000-2014 Future Technology Devices International Limited
+ * Copyright (C) 2000-2014 Future Technology Devices International Limited
  *
  *
  * THIS SOFTWARE IS PROVIDED BY FUTURE TECHNOLOGY DEVICES INTERNATIONAL LIMITED ``AS IS'' AND ANY EXPRESS
@@ -159,8 +159,6 @@ FTDI_API FT_STATUS SPI_ReadWrite(FT_HANDLE handle, uint8 *inBuffer,
 	uint8 *outBuffer, uint32 sizeToTransfer, uint32 *sizeTransferred,
 	uint32 transferOptions);
 FTDI_API FT_STATUS SPI_IsBusy(FT_HANDLE handle, bool *state);
-FTDI_API void Init_libMPSSE(void);
-FTDI_API void Cleanup_libMPSSE(void);
 FTDI_API FT_STATUS SPI_ChangeCS(FT_HANDLE handle, uint32 configOptions);
 FTDI_API FT_STATUS FT_WriteGPIO(FT_HANDLE handle, uint8 dir, uint8 value);
 FTDI_API FT_STATUS FT_ReadGPIO(FT_HANDLE handle,uint8 *value);

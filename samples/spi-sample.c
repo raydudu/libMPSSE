@@ -1,10 +1,10 @@
 /*!
- * \file sample-dynamic.c
+ * \file spi-static.c
  *
  * \author FTDI
  * \date 20110512
  *
- * Copyright © 2000-2014 Future Technology Devices International Limited
+ * Copyright (C) 2000-2014 Future Technology Devices International Limited
  *
  *
  * THIS SOFTWARE IS PROVIDED BY FUTURE TECHNOLOGY DEVICES INTERNATIONAL LIMITED ``AS IS'' AND ANY EXPRESS
@@ -42,10 +42,6 @@
 #include<windows.h>
 #endif
 
-#ifdef __linux
-#include<dlfcn.h>
-#endif
-
 /* Include D2XX header*/
 #include "ftd2xx.h"
 
@@ -56,17 +52,7 @@
 /*								Macro and type defines							   */
 /******************************************************************************/
 /* Helper macros */
-#ifdef _WIN32
-	#define GET_FUN_POINTER	GetProcAddress
-	#define CHECK_ERROR(exp) {if(exp==NULL){printf("%s:%d:%s():  NULL \
-expression encountered \n",__FILE__, __LINE__, __FUNCTION__);exit(1);}else{;}};
-#endif
 
-#ifdef __linux
-	#define GET_FUN_POINTER	dlsym
-	#define CHECK_ERROR(exp) {if(dlerror() != NULL){printf("line %d: ERROR \
-dlsym\n",__LINE__);}}
-#endif
 #define APP_CHECK_STATUS(exp) {if(exp!=FT_OK){printf("%s:%d:%s(): status(0x%x) \
 != FT_OK\n",__FILE__, __LINE__, __FUNCTION__,exp);exit(1);}else{;}};
 #define CHECK_NULL(exp){if(exp==NULL){printf("%s:%d:%s():  NULL expression \
@@ -85,31 +71,6 @@ encountered \n",__FILE__, __LINE__, __FUNCTION__);exit(1);}else{;}};
 #define DATA_OFFSET				4
 #define USE_WRITEREAD			0
 
-typedef FT_STATUS (*pfunc_SPI_GetNumChannels)(uint32 *numChannels);
-pfunc_SPI_GetNumChannels p_SPI_GetNumChannels;
-typedef FT_STATUS (*pfunc_SPI_GetChannelInfo)(uint32 index, \
-	FT_DEVICE_LIST_INFO_NODE *chanInfo);
-pfunc_SPI_GetChannelInfo p_SPI_GetChannelInfo;
-typedef FT_STATUS (*pfunc_SPI_OpenChannel)(uint32 index, FT_HANDLE *handle);
-pfunc_SPI_OpenChannel p_SPI_OpenChannel;
-typedef FT_STATUS (*pfunc_SPI_InitChannel)(FT_HANDLE handle, \
-	ChannelConfig *config);
-pfunc_SPI_InitChannel p_SPI_InitChannel;
-typedef FT_STATUS (*pfunc_SPI_CloseChannel)(FT_HANDLE handle);
-pfunc_SPI_CloseChannel p_SPI_CloseChannel;
-typedef FT_STATUS (*pfunc_SPI_Read)(FT_HANDLE handle, uint8 *buffer, \
-	uint32 sizeToTransfer, uint32 *sizeTransfered, uint32 options);
-pfunc_SPI_Read p_SPI_Read;
-typedef FT_STATUS (*pfunc_SPI_Write)(FT_HANDLE handle, uint8 *buffer, \
-	uint32 sizeToTransfer, uint32 *sizeTransfered, uint32 options);
-pfunc_SPI_Write p_SPI_Write;
-typedef FT_STATUS (*pfunc_SPI_IsBusy)(FT_HANDLE handle, bool *state);
-pfunc_SPI_IsBusy p_SPI_IsBusy;
-typedef FT_STATUS (*pfunc_SPI_ReadWrite)(FT_HANDLE handle, uint8 *inBuffer,
-	uint8 *outBuffer, uint32 sizeToTransfer, uint32 *sizeTransferred,
-	uint32 transferOptions);
-pfunc_SPI_ReadWrite p_SPI_ReadWrite;
-	
 /******************************************************************************/
 /*								Global variables							  	    */
 /******************************************************************************/
@@ -146,7 +107,7 @@ static FT_STATUS read_byte(uint8 slaveAddress, uint8 address, uint16 *data)
 	sizeTransfered=0;
 	buffer[0] = 0xC0;/* Write command (3bits)*/
 	buffer[0] = buffer[0] | ( ( address >> 3) & 0x0F );/*5 most significant add bits*/
-	status = p_SPI_Write(ftHandle, buffer, sizeToTransfer, &sizeTransfered,
+	status = SPI_Write(ftHandle, buffer, sizeToTransfer, &sizeTransfered,
 		SPI_TRANSFER_OPTIONS_SIZE_IN_BYTES|
 		SPI_TRANSFER_OPTIONS_CHIPSELECT_ENABLE);
 	APP_CHECK_STATUS(status);
@@ -155,14 +116,14 @@ static FT_STATUS read_byte(uint8 slaveAddress, uint8 address, uint16 *data)
 	sizeToTransfer=4;
 	sizeTransfered=0;
 	buffer[0] = ( address & 0x07 ) << 5; /* least significant 3 address bits */
-	status = p_SPI_Write(ftHandle, buffer, sizeToTransfer, &sizeTransfered,
+	status = SPI_Write(ftHandle, buffer, sizeToTransfer, &sizeTransfered,
 		SPI_TRANSFER_OPTIONS_SIZE_IN_BITS);
 	APP_CHECK_STATUS(status);
 
 	/*Read 2 bytes*/
 	sizeToTransfer=2;
 	sizeTransfered=0;
-	status = p_SPI_Read(ftHandle, buffer, sizeToTransfer, &sizeTransfered,
+	status = SPI_Read(ftHandle, buffer, sizeToTransfer, &sizeTransfered,
 		SPI_TRANSFER_OPTIONS_SIZE_IN_BYTES|
 		SPI_TRANSFER_OPTIONS_CHIPSELECT_DISABLE);
 	APP_CHECK_STATUS(status);
@@ -200,7 +161,7 @@ static FT_STATUS write_byte(uint8 slaveAddress, uint8 address, uint16 data)
 	sizeTransfered=0;
 	buffer[0]=0x9F;/* SPI_EWEN -> binary 10011xxxxxx (11bits) */
 	buffer[1]=0xFF;
-	status = p_SPI_Write(ftHandle, buffer, sizeToTransfer, &sizeTransfered,
+	status = SPI_Write(ftHandle, buffer, sizeToTransfer, &sizeTransfered,
 		SPI_TRANSFER_OPTIONS_SIZE_IN_BITS|
 		SPI_TRANSFER_OPTIONS_CHIPSELECT_ENABLE|
 		SPI_TRANSFER_OPTIONS_CHIPSELECT_DISABLE);
@@ -211,7 +172,7 @@ static FT_STATUS write_byte(uint8 slaveAddress, uint8 address, uint16 data)
 	sizeTransfered=0;
 	buffer[0] = 0xA0;/* Write command (3bits) */
 	buffer[0] = buffer[0] | ( ( address >> 3) & 0x0F );/*5 most significant add bits*/
-	status = p_SPI_Write(ftHandle, buffer, sizeToTransfer, &sizeTransfered,
+	status = SPI_Write(ftHandle, buffer, sizeToTransfer, &sizeTransfered,
 		SPI_TRANSFER_OPTIONS_SIZE_IN_BYTES|
 		SPI_TRANSFER_OPTIONS_CHIPSELECT_ENABLE);
 	APP_CHECK_STATUS(status);
@@ -220,7 +181,7 @@ static FT_STATUS write_byte(uint8 slaveAddress, uint8 address, uint16 data)
 	sizeToTransfer=3;
 	sizeTransfered=0;
 	buffer[0] = ( address & 0x07 ) << 5; /* least significant 3 address bits */
-	status = p_SPI_Write(ftHandle, buffer, sizeToTransfer, &sizeTransfered,
+	status = SPI_Write(ftHandle, buffer, sizeToTransfer, &sizeTransfered,
 		SPI_TRANSFER_OPTIONS_SIZE_IN_BITS);
 	APP_CHECK_STATUS(status);
 
@@ -229,7 +190,7 @@ static FT_STATUS write_byte(uint8 slaveAddress, uint8 address, uint16 data)
 	sizeTransfered=0;
 	buffer[0] = (uint8)(data & 0xFF);
 	buffer[1] = (uint8)((data & 0xFF00)>>8);
-	status = p_SPI_Write(ftHandle, buffer, sizeToTransfer, &sizeTransfered,
+	status = SPI_Write(ftHandle, buffer, sizeToTransfer, &sizeTransfered,
 		SPI_TRANSFER_OPTIONS_SIZE_IN_BYTES|
 		SPI_TRANSFER_OPTIONS_CHIPSELECT_DISABLE);
 	APP_CHECK_STATUS(status);
@@ -239,7 +200,7 @@ static FT_STATUS write_byte(uint8 slaveAddress, uint8 address, uint16 data)
 	/* Strobe Chip Select */
 	sizeToTransfer=0;
 	sizeTransfered=0;
-	status = p_SPI_Write(ftHandle, buffer, sizeToTransfer, &sizeTransfered,
+	status = SPI_Write(ftHandle, buffer, sizeToTransfer, &sizeTransfered,
 		SPI_TRANSFER_OPTIONS_SIZE_IN_BITS|
 		SPI_TRANSFER_OPTIONS_CHIPSELECT_ENABLE);
 	APP_CHECK_STATUS(status);
@@ -248,18 +209,18 @@ static FT_STATUS write_byte(uint8 slaveAddress, uint8 address, uint16 data)
 #endif
 	sizeToTransfer=0;
 	sizeTransfered=0;
-	status = p_SPI_Write(ftHandle, buffer, sizeToTransfer, &sizeTransfered,
+	status = SPI_Write(ftHandle, buffer, sizeToTransfer, &sizeTransfered,
 		SPI_TRANSFER_OPTIONS_SIZE_IN_BITS|
 		SPI_TRANSFER_OPTIONS_CHIPSELECT_DISABLE);
 	APP_CHECK_STATUS(status);
 #else
 	retry=0;
 	state=FALSE;
-	p_SPI_IsBusy(ftHandle,&state);
+	SPI_IsBusy(ftHandle,&state);
 	while((FALSE==state) && (retry<SPI_WRITE_COMPLETION_RETRY))
 	{
 		printf("SPI device is busy(%u)\n",(unsigned)retry);
-		p_SPI_IsBusy(ftHandle,&state);
+		SPI_IsBusy(ftHandle,&state);
 		retry++;
 	}
 #endif
@@ -268,7 +229,7 @@ static FT_STATUS write_byte(uint8 slaveAddress, uint8 address, uint16 data)
 	sizeTransfered=0;
 	buffer[0]=0x8F;/* SPI_EWEN -> binary 10011xxxxxx (11bits) */
 	buffer[1]=0xFF;
-	status = p_SPI_Write(ftHandle, buffer, sizeToTransfer, &sizeTransfered,
+	status = SPI_Write(ftHandle, buffer, sizeToTransfer, &sizeTransfered,
 		SPI_TRANSFER_OPTIONS_SIZE_IN_BITS|
 		SPI_TRANSFER_OPTIONS_CHIPSELECT_ENABLE|
 		SPI_TRANSFER_OPTIONS_CHIPSELECT_DISABLE);
@@ -290,16 +251,6 @@ static FT_STATUS write_byte(uint8 slaveAddress, uint8 address, uint16 data)
  */
 int main()
 {
-#ifdef _WIN32
-#ifdef _MSC_VER
-	HMODULE h_libMPSSE;
-#else
-	HANDLE h_libMPSSE;
-#endif
-#endif
-#ifdef __linux
-	void *h_libMPSSE;
-#endif
 	FT_STATUS status = FT_OK;
 	FT_DEVICE_LIST_INFO_NODE devList = {0};
 	ChannelConfig channelConf = {0};
@@ -314,56 +265,7 @@ int main()
 	channelConf.configOptions = SPI_CONFIG_OPTION_MODE0 | SPI_CONFIG_OPTION_CS_DBUS3;// | SPI_CONFIG_OPTION_CS_ACTIVELOW;
 	channelConf.Pin = 0x00000000;/*FinalVal-FinalDir-InitVal-InitDir (for dir 0=in, 1=out)*/
 
-	/* load library */
-#ifdef _WIN32
-	#ifdef _MSC_VER
-		h_libMPSSE = LoadLibrary(L"libMPSSE.dll");
-	#else
-		h_libMPSSE = LoadLibrary("libMPSSE.dll");
-	#endif
-	if(NULL == h_libMPSSE)
-	{
-		printf("Failed loading libMPSSE.dll. \
-		\nPlease check if the file exists in the working directory\n");
-		exit(1);
-	}
-#endif
-
-#if __linux
-	h_libMPSSE = dlopen("libMPSSE.so",RTLD_LAZY);
-	if(!h_libMPSSE)
-	{
-		printf("Failed loading libMPSSE.so. Please check if the file exists in \
-the shared library folder(/usr/lib or /usr/lib64)\n");
-		exit(1);
-	}
-#endif
-	/* init function pointers */
-	p_SPI_GetNumChannels = (pfunc_SPI_GetNumChannels)GET_FUN_POINTER(h_libMPSSE\
-, "SPI_GetNumChannels");
-	CHECK_NULL (p_SPI_GetNumChannels);
-	p_SPI_GetChannelInfo = (pfunc_SPI_GetChannelInfo)GET_FUN_POINTER(h_libMPSSE\
-, "SPI_GetChannelInfo");
-	CHECK_NULL(p_SPI_GetChannelInfo);
-	p_SPI_OpenChannel = (pfunc_SPI_OpenChannel)GET_FUN_POINTER(h_libMPSSE\
-, "SPI_OpenChannel");
-	CHECK_NULL(p_SPI_OpenChannel);
-	p_SPI_InitChannel = (pfunc_SPI_InitChannel)GET_FUN_POINTER(h_libMPSSE\
-, "SPI_InitChannel");
-	CHECK_NULL(p_SPI_InitChannel);
-	p_SPI_Read = (pfunc_SPI_Read)GET_FUN_POINTER(h_libMPSSE, "SPI_Read");
-	CHECK_NULL(p_SPI_Read);
-	p_SPI_Write = (pfunc_SPI_Write)GET_FUN_POINTER(h_libMPSSE, "SPI_Write");
-	CHECK_NULL(p_SPI_Write);
-	p_SPI_CloseChannel = (pfunc_SPI_CloseChannel)GET_FUN_POINTER(h_libMPSSE\
-, "SPI_CloseChannel");
-	CHECK_NULL(p_SPI_CloseChannel);
-	p_SPI_IsBusy = (pfunc_SPI_IsBusy)GET_FUN_POINTER(h_libMPSSE, "SPI_IsBusy");
-	CHECK_NULL(p_SPI_IsBusy);
-	p_SPI_ReadWrite = (pfunc_SPI_ReadWrite)GET_FUN_POINTER(h_libMPSSE, "SPI_ReadWrite");
-	CHECK_NULL(p_SPI_ReadWrite);
-
-	status = p_SPI_GetNumChannels(&channels);
+	status = SPI_GetNumChannels(&channels);
 	APP_CHECK_STATUS(status);
 	printf("Number of available SPI channels = %d\n",(int)channels);
 
@@ -371,7 +273,7 @@ the shared library folder(/usr/lib or /usr/lib64)\n");
 	{
 		for(i=0;i<channels;i++)
 		{
-			status = p_SPI_GetChannelInfo(i,&devList);
+			status = SPI_GetChannelInfo(i,&devList);
 			APP_CHECK_STATUS(status);
 			printf("Information on channel number %d:\n",i);
 			/* print the dev info */
@@ -385,10 +287,10 @@ the shared library folder(/usr/lib or /usr/lib64)\n");
 		}
 
 		/* Open the first available channel */
-		status = p_SPI_OpenChannel(CHANNEL_TO_OPEN,&ftHandle);
+		status = SPI_OpenChannel(CHANNEL_TO_OPEN,&ftHandle);
 		APP_CHECK_STATUS(status);
 		printf("\nhandle=0x%x status=0x%x\n",(unsigned int)ftHandle,status);
-		status = p_SPI_InitChannel(ftHandle,&channelConf);
+		status = SPI_InitChannel(ftHandle,&channelConf);
 		APP_CHECK_STATUS(status);
 
 #if USE_WRITEREAD	
@@ -403,12 +305,12 @@ the shared library folder(/usr/lib or /usr/lib64)\n");
 				sizeToTransfer=10;
 				sizeTransferred=0;
 #if 1 // BYTES
-				status = p_SPI_ReadWrite(ftHandle, inBuffer, outBuffer+k, sizeToTransfer, &sizeTransferred,
+				status = SPI_ReadWrite(ftHandle, inBuffer, outBuffer+k, sizeToTransfer, &sizeTransferred,
 					SPI_TRANSFER_OPTIONS_SIZE_IN_BYTES|
 					SPI_TRANSFER_OPTIONS_CHIPSELECT_ENABLE|
 					SPI_TRANSFER_OPTIONS_CHIPSELECT_DISABLE);
 #else // BITES
-				status = p_SPI_ReadWrite(ftHandle, inBuffer, outBuffer+k, sizeToTransfer*8, &sizeTransferred,
+				status = SPI_ReadWrite(ftHandle, inBuffer, outBuffer+k, sizeToTransfer*8, &sizeTransferred,
 					SPI_TRANSFER_OPTIONS_SIZE_IN_BITS|
 					SPI_TRANSFER_OPTIONS_CHIPSELECT_ENABLE|
 					SPI_TRANSFER_OPTIONS_CHIPSELECT_DISABLE);
@@ -434,8 +336,9 @@ the shared library folder(/usr/lib or /usr/lib64)\n");
 		}
 #endif // USE_WRITEREAD
 
-		status = p_SPI_CloseChannel(ftHandle);
+		status = SPI_CloseChannel(ftHandle);
 	}
+
 #ifndef __linux__
 	system("pause");
 #endif

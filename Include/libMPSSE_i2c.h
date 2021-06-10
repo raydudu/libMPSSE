@@ -4,7 +4,7 @@
  * \author FTDI
  * \date 20110505
  *
- * Copyright © 2000-2014 Future Technology Devices International Limited
+ * Copyright (C) 2000-2014 Future Technology Devices International Limited
  *
  *
  * THIS SOFTWARE IS PROVIDED BY FUTURE TECHNOLOGY DEVICES INTERNATIONAL LIMITED ``AS IS'' AND ANY EXPRESS
@@ -148,8 +148,6 @@ FTDI_API FT_STATUS I2C_DeviceRead(FT_HANDLE handle, uint32 deviceAddress,
 uint32 sizeToTransfer, uint8 *buffer, uint32 *sizeTransfered, uint32 options);
 FTDI_API FT_STATUS I2C_DeviceWrite(FT_HANDLE handle, uint32 deviceAddress,
 uint32 sizeToTransfer, uint8 *buffer, uint32 *sizeTransfered, uint32 options);
-FTDI_API void Init_libMPSSE(void);
-FTDI_API void Cleanup_libMPSSE(void);
 FTDI_API FT_STATUS FT_WriteGPIO(FT_HANDLE handle, uint8 dir, uint8 value);
 FTDI_API FT_STATUS FT_ReadGPIO(FT_HANDLE handle,uint8 *value);
 

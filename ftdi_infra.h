@@ -32,6 +32,7 @@
 
 #ifndef FTDI_INFRA_H
 #define FTDI_INFRA_H
+#include "ftd2xx.h"
 
 /******************************************************************************/
 /*								Macro defines								  */
@@ -42,7 +43,6 @@
 #endif
 
 #ifdef __linux
-#include<dlfcn.h>	/*for dlopen() & dlsym()*/
 #include<stdarg.h>	/*for va_start() & va_arg()*/
 #include<unistd.h>	/*for Sleep()*/
 #endif
@@ -203,75 +203,6 @@ status=FT_INVALID_PARAMETER ; return(status);}else{;}};
 		typedef signed long   int32;
 	#endif
 #endif
-
-	typedef FT_STATUS (CAL_CONV *pfunc_FT_GetLibraryVersion)(LPDWORD \
-		lpdwVersion);
-	typedef FT_STATUS (CAL_CONV *pfunc_FT_GetNumChannel)(LPDWORD \
-		lpdwNumDevs);
-	typedef FT_STATUS (CAL_CONV *pfunc_FT_GetDeviceInfoList) \
-		(FT_DEVICE_LIST_INFO_NODE *pDest, LPDWORD lpdwNumDevs);
-	typedef FT_STATUS (CAL_CONV *pfunc_FT_Open) (int iDevice, \
-		FT_HANDLE *ftHandle);
-	typedef FT_STATUS (CAL_CONV *pfunc_FT_Close) (FT_HANDLE ftHandle);
-	typedef FT_STATUS (CAL_CONV *pfunc_FT_ResetDevice) (FT_HANDLE ftHandle);
-	typedef FT_STATUS (CAL_CONV *pfunc_FT_Purge) (FT_HANDLE ftHandle, \
-		DWORD dwMask);
-	typedef FT_STATUS (CAL_CONV *pfunc_FT_SetUSBParameters) (\
-		FT_HANDLE ftHandle, DWORD dwInTransferSize, DWORD dwOutTransferSize);
-	typedef FT_STATUS (CAL_CONV *pfunc_FT_SetChars) (FT_HANDLE ftHandle, \
-		UCHAR uEventCh, UCHAR uEventChEn, UCHAR uErrorCh, UCHAR uErrorChEn);
-	typedef FT_STATUS (CAL_CONV *pfunc_FT_SetTimeouts) (FT_HANDLE ftHandle, \
-		DWORD dwReadTimeout, DWORD dwWriteTimeout);
-	typedef FT_STATUS (CAL_CONV *pfunc_FT_SetLatencyTimer) (FT_HANDLE ftHandle\
-		, UCHAR ucTimer);
-	typedef FT_STATUS (CAL_CONV *pfunc_FT_SetBitmode) (FT_HANDLE ftHandle, \
-		UCHAR ucMask, UCHAR ucMode);
-	typedef FT_STATUS (CAL_CONV *pfunc_FT_GetQueueStatus) (FT_HANDLE ftHandle,\
-		LPDWORD lpdwAmountInRxQueue);
-	typedef FT_STATUS (CAL_CONV *pfunc_FT_Read) (FT_HANDLE ftHandle, \
-		LPVOID lpBuffer, DWORD dwBytesToRead,LPDWORD lpdwBytesReturned);
-	typedef FT_STATUS (CAL_CONV *pfunc_FT_Write) (FT_HANDLE ftHandle, LPVOID \
-		lpBuffer, DWORD dwBytesToWrite,LPDWORD lpdwBytesWritten);
-	typedef FT_STATUS (CAL_CONV *pfunc_FT_GetDeviceInfo)(FT_HANDLE ftHandle, \
-		FT_DEVICE *lpftDevice, LPDWORD lpdwID, PCHAR SerialNumber, PCHAR \
-		Description, LPVOID Dummy);
-
-typedef struct InfraFunctionPtrLst_t
-{
-	pfunc_FT_GetLibraryVersion p_FT_GetLibraryVersion;
-	pfunc_FT_GetNumChannel p_FT_GetNumChannel;
-	pfunc_FT_GetDeviceInfoList p_FT_GetDeviceInfoList;
-	pfunc_FT_Open p_FT_Open;
-	pfunc_FT_Close p_FT_Close;
-	pfunc_FT_ResetDevice p_FT_ResetDevice;
-	pfunc_FT_Purge p_FT_Purge;
-	pfunc_FT_SetUSBParameters p_FT_SetUSBParameters;
-	pfunc_FT_SetChars p_FT_SetChars;
-	pfunc_FT_SetTimeouts p_FT_SetTimeouts;
-	pfunc_FT_SetLatencyTimer p_FT_SetLatencyTimer;
-	pfunc_FT_SetBitmode p_FT_SetBitmode;
-	pfunc_FT_GetQueueStatus p_FT_GetQueueStatus;
-	pfunc_FT_Read p_FT_Read;
-	pfunc_FT_Write p_FT_Write;
-	pfunc_FT_GetDeviceInfo p_FT_GetDeviceInfo;
-}InfraFunctionPtrLst;
-
-
-/******************************************************************************/
-/*								External variables							  */
-/******************************************************************************/
-#ifdef _WIN32
-	extern HANDLE hdll_d2xx;
-#endif
-
-#ifdef __linux__
-	extern void *hdll_d2xx;
-#endif
-
-extern InfraFunctionPtrLst varFunctionPtrLst;
-
-
-
 
 /******************************************************************************/
 /*								Function declarations						  */

@@ -135,8 +135,6 @@ FTDI_API FT_STATUS SPI_ReadWrite(FT_HANDLE handle, uint8 *inBuffer,
 	uint8 *outBuffer, uint32 sizeToTransfer, uint32 *sizeTransferred,
 	uint32 transferOptions);
 FTDI_API FT_STATUS SPI_IsBusy(FT_HANDLE handle, bool *state);
-FTDI_API void Init_libMPSSE(void);
-FTDI_API void Cleanup_libMPSSE(void);
 FTDI_API FT_STATUS SPI_ChangeCS(FT_HANDLE handle, uint32 configOptions);
 FTDI_API FT_STATUS SPI_ToggleCS(FT_HANDLE handle, bool state);
 
