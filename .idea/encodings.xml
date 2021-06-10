@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding">
+    <file url="file://$PROJECT_DIR$/ftdi_i2c.c" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ftdi_mid.c" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/ftdi_mid.h" charset="UTF-8" />
+    <file url="mock:///ftdi_common.c" charset="US-ASCII" />
+    <file url="mock:///ftdi_common.h" charset="US-ASCII" />
+    <file url="mock:///ftdi_i2c.c" charset="UTF-8" />
+    <file url="mock:///ftdi_spi.c" charset="UTF-8" />
+    <file url="mock:///ftdi_spi.h" charset="UTF-8" />
+  </component>
+</project>
