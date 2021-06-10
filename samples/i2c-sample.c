@@ -68,7 +68,7 @@
 #define I2C_WRITE_COMPLETION_RETRY		10
 #define START_ADDRESS_EEPROM 			0x00 /*read/write start address inside the EEPROM*/
 #define END_ADDRESS_EEPROM				0x10 /*16 bytes buffer only*/
-#define RETRY_COUNT_EEPROM				10	/* number of retries if read/write fails */
+#define RETRY_COUNT_EEPROM				0	/* number of retries if read/write fails */
 #define EEPROM_DATA_OFFSET				5
 #define EEPROM_DATA_LEN					(END_ADDRESS_EEPROM-START_ADDRESS_EEPROM)
 #define I2C_DEVICE_ADDRESS_ADC			0x48
@@ -77,7 +77,7 @@
 
 /* Application configuration/debugging */
 #define TEST_EEPROM						1
-#define FAST_TRANSFER					0
+#define FAST_TRANSFER					1
 #define WRITE_ONCE						0
 #define CATCH_GLITCH					0
 
@@ -190,7 +190,7 @@ static FT_STATUS write_bytes(uint8 slaveAddress, uint8 registerAddress, const ui
 	start_time();
 	status = I2C_DeviceWrite(ftHandle, slaveAddress, bytesToTransfer, buffer, &bytesTransfered, options);
 	timeWrite = stop_time();
-	while (status != FT_OK && trials < 10)
+	while (status != FT_OK && trials < RETRY_COUNT_EEPROM)
 	{
 		APP_CHECK_STATUS_NOEXIT(status);
 		start_time();
@@ -198,6 +198,7 @@ static FT_STATUS write_bytes(uint8 slaveAddress, uint8 registerAddress, const ui
 		timeWrite = stop_time();
 		trials++;
 	}
+    APP_CHECK_STATUS_NOEXIT(status);
 
 	return status;
 }
@@ -236,7 +237,7 @@ static FT_STATUS read_bytes(uint8 slaveAddress, uint8 registerAddress, uint8 bRe
 		buffer[bytesToTransfer++] = registerAddress;
 		status = I2C_DeviceWrite(ftHandle, slaveAddress, bytesToTransfer, buffer, &bytesTransfered, options);
 		trials = 0;
-		while (status != FT_OK && trials < 10)
+		while (status != FT_OK && trials < RETRY_COUNT_EEPROM)
 		{
 			APP_CHECK_STATUS_NOEXIT(status);
 			status = I2C_DeviceWrite(ftHandle, slaveAddress, bytesToTransfer, buffer, &bytesTransfered, options);
@@ -262,7 +263,7 @@ static FT_STATUS read_bytes(uint8 slaveAddress, uint8 registerAddress, uint8 bRe
 	timeRead = stop_time();
 
 	trials = 0;
-	while (status != FT_OK && trials < 10)
+	while (status != FT_OK && trials < RETRY_COUNT_EEPROM)
 	{
 		APP_CHECK_STATUS_NOEXIT(status);
 		start_time();

@@ -6,7 +6,7 @@ set(CMAKE_C_STANDARD 11)
 set(D2XX_INCLUDE_DIR "${CMAKE_SOURCE_DIR}/libftd2xx1/Include" CACHE PATH "Path to libftd2xx1 headers")
 set(D2XX_LIBRARY_PATH "${CMAKE_SOURCE_DIR}/libftd2xx1/x86_64" CACHE PATH "Path to libftdi2xx library")
 
-find_library(D2XX_LIBRARY libftd2xx.so   PATHS ${D2XX_LIBRARY_PATH})
+find_library(D2XX_LIBRARY libftd2xx.so PATHS ${D2XX_LIBRARY_PATH})
 
 add_library(${PROJECT_NAME} SHARED
         ftdi_common.h
